@@ -83,6 +83,7 @@ p {
     border: none;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    will-change: transform, box-shadow; /* Otimização para animações */
 }
 
 .cta-button:hover, .event-details-button:hover, .submit-button:hover {
@@ -115,6 +116,11 @@ p {
     font-size: 2.5rem;
     color: var(--color-secondary);
     text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
 }
 
 .nav-toggle {
@@ -174,8 +180,8 @@ p {
     color: var(--color-text-light);
     position: relative;
     overflow: hidden;
-    /* Efeito de Parallax sutil */
-    background-attachment: fixed;
+    background-attachment: fixed; /* Efeito de Parallax sutil */
+    animation: zoomOutBackground 60s infinite alternate linear; /* Animação de fundo */
 }
 
 .hero-section::before {
@@ -186,6 +192,7 @@ p {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5); /* Overlay escuro */
+    mix-blend-mode: multiply; /* Efeito de mesclagem para cores mais ricas */
 }
 
 .hero-content {
@@ -193,7 +200,7 @@ p {
     z-index: 1;
     transform: translateY(20px);
     opacity: 0;
-    animation: fadeInSlideUp 1s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    animation: fadeInSlideUp 1.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .hero-content h1 {
@@ -216,6 +223,7 @@ p {
 section {
     padding: var(--spacing-lg) 0;
     position: relative;
+    overflow: hidden; /* Para garantir que as animações de entrada não "vazem" */
 }
 
 section:nth-of-type(even) { /* Seções pares terão fundo mais claro */
@@ -258,6 +266,7 @@ section:nth-of-type(odd) { /* Seções ímpares terão fundo um pouco mais escur
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     transition: transform 0.5s ease-in-out;
+    will-change: transform;
 }
 
 .about-image img:hover {
@@ -291,6 +300,7 @@ section:nth-of-type(odd) { /* Seções ímpares terão fundo um pouco mais escur
     text-align: center;
     transition: transform 0.4s ease, box-shadow 0.4s ease;
     border: 2px solid transparent; /* Para o efeito de borda */
+    will-change: transform, box-shadow;
 }
 
 .event-card:hover {
@@ -337,6 +347,8 @@ section:nth-of-type(odd) { /* Seções ímpares terão fundo um pouco mais escur
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     cursor: pointer;
+    background-color: #fff; /* Fundo para a imagem */
+    will-change: transform;
 }
 
 .gallery-item img {
@@ -344,7 +356,8 @@ section:nth-of-type(odd) { /* Seções ímpares terão fundo um pouco mais escur
     height: 250px;
     object-fit: cover;
     display: block;
-    transition: transform 0.5s ease-in-out;
+    transition: transform 0.5s ease-in-out, filter 0.5s ease-in-out;
+    filter: grayscale(20%); /* Efeito de cor na imagem */
 }
 
 .gallery-item figcaption {
@@ -359,10 +372,12 @@ section:nth-of-type(odd) { /* Seções ímpares terão fundo um pouco mais escur
     font-size: 0.9rem;
     transform: translateY(100%);
     transition: transform 0.4s ease-out;
+    will-change: transform;
 }
 
 .gallery-item:hover img {
     transform: scale(1.1);
+    filter: grayscale(0%); /* Remove o efeito grayscale ao hover */
 }
 
 .gallery-item:hover figcaption {
@@ -458,21 +473,22 @@ section:nth-of-type(odd) { /* Seções ímpares terão fundo um pouco mais escur
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
+    gap: var(--spacing-sm);
 }
 
 .social-links a {
     color: var(--color-text-light);
     font-size: 1.5rem;
     margin: 0 0.8rem;
-    transition: color 0.3s ease;
+    transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .social-links a:hover {
     color: var(--color-secondary);
-    transform: scale(1.1);
+    transform: scale(1.2);
 }
 
-/* Animações */
+/* Animações Keyframes */
 @keyframes fadeInSlideUp {
     from {
         opacity: 0;
@@ -484,8 +500,32 @@ section:nth-of-type(odd) { /* Seções ímpares terão fundo um pouco mais escur
     }
 }
 
+@keyframes zoomOutBackground {
+    0% { background-size: 110% auto; }
+    100% { background-size: 100% auto; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+
 /* Media Queries para Responsividade Avançada */
 @media (max-width: 992px) {
+    h1 { font-size: 3.8rem; }
+    h2 { font-size: 2.2rem; }
+
     .about-grid {
         grid-template-columns: 1fr; /* Muda para uma coluna em telas menores */
     }
@@ -495,12 +535,8 @@ section:nth-of-type(odd) { /* Seções ímpares terão fundo um pouco mais escur
         margin-bottom: var(--spacing-md);
     }
 
-    .hero-content h1 {
-        font-size: 3.5rem;
-    }
-
-    .hero-content p {
-        font-size: 1.5rem;
+    .hero-section {
+        height: 70vh;
     }
 }
 
@@ -523,14 +559,14 @@ section:nth-of-type(odd) { /* Seções ímpares terão fundo um pouco mais escur
         border-top: 1px solid rgba(255,255,255,0.1);
         transform: translateY(-100%);
         opacity: 0;
-        pointer-events: none;
+        pointer-events: none; /* Desabilita interações quando invisível */
         transition: transform 0.4s ease-out, opacity 0.4s ease-out;
     }
 
     .nav-list[data-visible="true"] {
         transform: translateY(0);
         opacity: 1;
-        pointer-events: auto;
+        pointer-events: auto; /* Habilita interações quando visível */
     }
 
     .nav-list li {
@@ -558,11 +594,20 @@ section:nth-of-type(odd) { /* Seções ímpares terão fundo um pouco mais escur
     .gallery-grid {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
+
+    .main-footer .container {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
 }
 
 @media (max-width: 480px) {
-    .hero-content h1 {
-        font-size: 2.2rem;
+    h1 { font-size: 2.2rem; }
+    h2 { font-size: 1.8rem; }
+    h3 { font-size: 1.5rem; }
+
+    .hero-section {
+        height: 50vh;
     }
 
     .hero-content p {
@@ -574,8 +619,7 @@ section:nth-of-type(odd) { /* Seções ímpares terão fundo um pouco mais escur
         font-size: 0.9rem;
     }
 
-    .main-footer .container {
-        flex-direction: column;
-        gap: var(--spacing-sm);
+    .form-group label {
+        font-size: 0.9rem;
     }
 }
