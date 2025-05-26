@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Menu Responsivo
+    // Menu Responsivo (Hamburger)
     const navToggle = document.querySelector('.nav-toggle');
     const navList = document.getElementById('primary-navigation');
 
@@ -15,70 +15,68 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Fechar menu ao clicar fora (opcional, mas bom para UX)
-        document.addEventListener('click', (event) => {
-            if (!navList.contains(event.target) && !navToggle.contains(event.target) && navList.getAttribute('data-visible') === 'true') {
-                navList.setAttribute('data-visible', 'false');
-                navToggle.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        // Fechar menu ao clicar em um link (para single-page applications)
+        // Fechar menu ao clicar em um link
         navList.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 navList.setAttribute('data-visible', 'false');
                 navToggle.setAttribute('aria-expanded', 'false');
             });
         });
+
+        // Fechar menu ao clicar fora dele
+        document.addEventListener('click', (event) => {
+            // Verifica se o clique não foi dentro do navList e nem no navToggle
+            if (!navList.contains(event.target) && !navToggle.contains(event.target) && navList.getAttribute('data-visible') === 'true') {
+                navList.setAttribute('data-visible', 'false');
+                navToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
     }
 
     // Animação de seções ao scroll (Intersection Observer API)
-    const sections = document.querySelectorAll('section');
-
+    // Aplica a animação slideInUp para a maioria das seções e scaleIn para a imagem "sobre"
+    const sections = document.querySelectorAll('section:not(.hero-section)'); // Exclui a hero-section
     const observerOptions = {
         root: null, // viewport
         rootMargin: '0px',
-        threshold: 0.1 // Quando 10% da seção estiver visível
+        threshold: 0.2 // Quando 20% da seção estiver visível
     };
 
     const sectionObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-                // Adicione classes específicas para animações mais complexas por seção
+                entry.target.classList.add('animated'); // Adiciona uma classe para ativar a animação CSS
                 if (entry.target.id === 'sobre') {
-                    entry.target.querySelector('.about-image img').style.animation = 'scaleIn 1s forwards';
+                    entry.target.querySelector('.about-image img').classList.add('animated-scale');
                 }
-                // Adicione mais animações para outras seções conforme necessário
                 observer.unobserve(entry.target); // Para animar apenas uma vez
             }
         });
     }, observerOptions);
 
     sections.forEach(section => {
-        // Excluímos a hero-section da animação inicial, pois ela já tem a sua
-        if (section.id !== 'hero-section') {
-            section.style.opacity = '0';
-            section.style.transform = 'translateY(50px)';
-            section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
-            sectionObserver.observe(section);
-        }
+        section.style.opacity = '0'; // Define opacidade inicial para 0
+        section.style.transform = 'translateY(50px)'; // Define a posição inicial para animação slideUp
+        section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out'; // Transição suave
+        section.classList.add('animate-on-scroll'); // Adiciona uma classe para facilitar o CSS
+        sectionObserver.observe(section);
     });
 
-    // Adicionando animação específica para o about-image
-    const styleSheet = document.styleSheets[0];
-    const keyframesRule = `@keyframes scaleIn {
-        from {
-            transform: scale(0.8);
-            opacity: 0;
+    // Adiciona as classes CSS para as animações controladas por JS
+    const styleSheet = document.styleSheets[0]; // Pega a primeira folha de estilo
+    styleSheet.insertRule(`
+        .animate-on-scroll.animated {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
         }
-        to {
-            transform: scale(1);
-            opacity: 1;
+    `, styleSheet.cssRules.length);
+
+    styleSheet.insertRule(`
+        .about-image img.animated-scale {
+            animation: scaleIn 1s forwards;
         }
-    }`;
-    styleSheet.insertRule(keyframesRule, styleSheet.cssRules.length);
+    `, styleSheet.cssRules.length);
+
 
     // Validação de formulário de contato (exemplo básico)
     const contactForm = document.querySelector('.contact-form');
@@ -108,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Carregamento progressivo de imagens (lazy loading)
+    // Lazy loading para todas as imagens (usando Intersection Observer)
     const lazyImages = document.querySelectorAll('img');
 
     if ('IntersectionObserver' in window) {
@@ -116,9 +114,14 @@ document.addEventListener('DOMContentLoaded', () => {
             entries.forEach(function(entry) {
                 if (entry.isIntersecting) {
                     let lazyImage = entry.target;
-                    // lazyImage.src = lazyImage.dataset.src; // Se usar data-src
-                    // lazyImage.srcset = lazyImage.dataset.srcset; // Se usar data-srcset
-                    lazyImage.classList.add('loaded'); // Adiciona classe para animações CSS pós-carregamento
+                    // Se você usar data-src e data-srcset
+                    // if (lazyImage.dataset.src) {
+                    //     lazyImage.src = lazyImage.dataset.src;
+                    // }
+                    // if (lazyImage.dataset.srcset) {
+                    //     lazyImage.srcset = lazyImage.dataset.srcset;
+                    // }
+                    lazyImage.classList.add('loaded'); // Adiciona classe para possíveis animações CSS após o carregamento
                     lazyImageObserver.unobserve(lazyImage);
                 }
             });
@@ -128,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lazyImageObserver.observe(lazyImage);
         });
     } else {
-        // Fallback para navegadores sem Intersection Observer
+        // Fallback simples para navegadores sem Intersection Observer
         console.log('Intersection Observer não suportado, imagens carregadas normalmente.');
     }
 });
